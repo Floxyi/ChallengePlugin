@@ -1,0 +1,12 @@
+name: ChallengePlugin
+version: ${project.version}
+main: de.floxyii.challengeplugin.ChallengePlugin
+api-version: 1.18
+authors: [ Floxyii ]
+description: A challenge Plugin
+
+commands:
+  timer:
+    description: Start the time!
+  challenge:
+    description: Start the Challenge!
