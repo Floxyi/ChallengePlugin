@@ -9,4 +9,7 @@ public interface Challenge {
 
     void stopChallenge();
     void resumeChallenge();
+
+    String getPrefix();
+    String getDeathMessage();
 }

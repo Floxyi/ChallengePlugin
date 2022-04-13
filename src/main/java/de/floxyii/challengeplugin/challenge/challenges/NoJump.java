@@ -10,11 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerMoveEvent;
 
 public class NoJump implements Listener, Challenge {
-
-    boolean isRunning;
 
     @Override
     public String getName() {
@@ -22,15 +19,20 @@ public class NoJump implements Listener, Challenge {
     }
 
     public void onActivate() {
-        isRunning = true;
         for(Player player : Bukkit.getOnlinePlayers()) {
+            player.setGameMode(GameMode.SURVIVAL);
             player.sendMessage(getPrefix() + ChatColor.GREEN + getName() + "-Challenge got activated!");
         }
         addListeners();
     }
 
-    private String getPrefix() {
+    public String getPrefix() {
         return ChatColor.GRAY + "[" + ChatColor.GOLD + getName() + ChatColor.GRAY + "] " + ChatColor.RESET;
+    }
+
+    @Override
+    public String getDeathMessage() {
+        return ChatColor.RED + "No Jumps allowed. You failed!";
     }
 
     @Override
@@ -52,8 +54,7 @@ public class NoJump implements Listener, Challenge {
     public void onPlayerMove(PlayerJumpEvent event) {
         if(event.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(getPrefix() + ChatColor.RED + "No Jumps allowed. You failed!");
-            event.getPlayer().setGameMode(GameMode.SPECTATOR);
+            ChallengePlugin.getChallengeManager().endChallenge();
         }
     }
 }

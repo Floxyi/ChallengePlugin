@@ -3,7 +3,6 @@ package de.floxyii.challengeplugin.commands;
 import de.floxyii.challengeplugin.ChallengePlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;

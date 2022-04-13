@@ -1,7 +1,13 @@
 package de.floxyii.challengeplugin.challenge;
 
+import de.floxyii.challengeplugin.ChallengePlugin;
+import de.floxyii.challengeplugin.challenge.challenges.NoDoubleItem;
 import de.floxyii.challengeplugin.challenge.challenges.NoJump;
 import de.floxyii.challengeplugin.challenge.challenges.TheFloorIsLava;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +20,7 @@ public class ChallengeManager {
         List<Challenge> challengesList = new ArrayList<>();
         challengesList.add(new TheFloorIsLava());
         challengesList.add(new NoJump());
+        challengesList.add(new NoDoubleItem());
         return challengesList;
     }
 
@@ -58,6 +65,19 @@ public class ChallengeManager {
             return true;
         }
         return false;
+    }
+
+    public void endChallenge() {
+        ChallengePlugin.getChallengeTimer().stopTimer();
+        runningChallenge.stopChallenge();
+
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            player.sendMessage(runningChallenge.getPrefix() + runningChallenge.getDeathMessage());
+            player.sendMessage(runningChallenge.getPrefix() + "Time wasted: " + ChatColor.GOLD + ChallengePlugin.getChallengeTimer().getFormattedTime());
+            player.setGameMode(GameMode.SPECTATOR);
+        }
+
+        runningChallenge = null;
     }
 
 }

@@ -86,7 +86,7 @@ public class Timer {
         }.runTaskTimer(ChallengePlugin.getPlugin(), 0, 20);
     }
 
-    private String getFormattedTime() {
+    public String getFormattedTime() {
         String secondsSTR;
         String minutesSTR;
         String hoursSTR;
