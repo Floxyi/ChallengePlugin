@@ -1,7 +1,6 @@
 package de.floxyii.challengeplugin.challenge.challenges;
 
 import de.floxyii.challengeplugin.ChallengePlugin;
-import de.floxyii.challengeplugin.challenge.Challenge;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -12,14 +11,17 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 
-public class NoDoubleItem implements Listener, Challenge {
+public class NoDoubleItemChallenge implements Listener, Challenge {
+
+    Item wrongItem = null;
     @Override
     public String getName() {
         return "NoDoubleInvItem";
     }
 
     @Override
-    public void onActivate() {
+    public void activateChallenge() {
+        wrongItem = null;
         for(Player player : Bukkit.getOnlinePlayers()) {
             player.setGameMode(GameMode.SURVIVAL);
             player.sendMessage(getPrefix() + ChatColor.GREEN + getName() + "-Challenge got activated!");
@@ -32,8 +34,6 @@ public class NoDoubleItem implements Listener, Challenge {
         Bukkit.getPluginManager().registerEvents(this, ChallengePlugin.getPlugin());
     }
 
-    Item wrongItem;
-
     @EventHandler
     private void ItemCollectEvent(EntityPickupItemEvent event) {
         if(!(event.getEntity() instanceof Player)) {
@@ -45,7 +45,7 @@ public class NoDoubleItem implements Listener, Challenge {
                 return;
             }
 
-            if(player.getInventory().contains(event.getItem().getItemStack())) {
+            if(player.getInventory().contains(event.getItem().getItemStack().getType())) {
                 wrongItem = event.getItem();
                 event.setCancelled(true);
                 ChallengePlugin.getChallengeManager().endChallenge();
@@ -66,6 +66,13 @@ public class NoDoubleItem implements Listener, Challenge {
     @Override
     public String getPrefix() {
         return ChatColor.GRAY + "[" + ChatColor.GOLD + getName() + ChatColor.GRAY + "] " + ChatColor.RESET;
+    }
+
+    @Override
+    public String getDescription() {
+        return "As the name suggest you and your friends arent allowed to have the same item in your inventories! So" +
+                "make sure that you asked your friend before you pick up an item! Maybe you specialize on different " +
+                "item categories to make it easier.";
     }
 
     @Override

@@ -7,6 +7,8 @@ description: A challenge Plugin
 
 commands:
   timer:
-    description: Start the time!
+    description: Start the timer! (/timer <start> <stop> <reset> <remove>)
   challenge:
-    description: Start the Challenge!
+    description: Start the different challenges! (/challenge <start "challenge name"> <stop> <resume>)
+  module:
+    description: Add some small modules to your challenge!

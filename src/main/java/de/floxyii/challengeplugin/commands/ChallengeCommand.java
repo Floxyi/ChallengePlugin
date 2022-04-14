@@ -1,7 +1,7 @@
 package de.floxyii.challengeplugin.commands;
 
 import de.floxyii.challengeplugin.ChallengePlugin;
-import de.floxyii.challengeplugin.challenge.Challenge;
+import de.floxyii.challengeplugin.challenge.challenges.Challenge;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -23,9 +23,9 @@ public class ChallengeCommand implements TabExecutor {
 
         Player player = (Player) sender;
 
-        if(args.length == 0 || args.length > 2 || (args.length == 2 && args[0].equals("stop")) || (args.length == 1 && args[0].equals("start"))) {
+        if(args.length == 0 || args.length > 2 || (args.length == 2 && args[0].equals("stop")) || (args.length == 1 && args[0].equals("start")) || (args.length == 1 && args[0].equals("info"))) {
             player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "Failed! Please use " +
-                    ChatColor.GOLD + "/challenge [start challenge name / stop / resume] " + ChatColor.RED + "!");
+                    ChatColor.GOLD + "/challenge <start \"challenge name\"> <stop> <resume> <info \"challenge name\">" + ChatColor.RED + "!");
             return false;
         }
 
@@ -38,7 +38,6 @@ public class ChallengeCommand implements TabExecutor {
             }
 
             if(ChallengePlugin.getChallengeManager().startChallenge(challenge)) {
-                player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.GREEN + "Challenge got activated!");
                 return true;
             } else {
                 player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "A challenge is already running!");
@@ -66,6 +65,17 @@ public class ChallengeCommand implements TabExecutor {
             }
         }
 
+        if(args[0].equalsIgnoreCase("info")) {
+            Challenge challenge = ChallengePlugin.getChallengeManager().getChallenge(args[1]);
+
+            if(challenge == null) {
+                player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "Challenge wasn't found!");
+                return false;
+            }
+
+            player.sendMessage(challenge.getPrefix() + challenge.getDescription());
+        }
+
         return false;
     }
 
@@ -76,6 +86,7 @@ public class ChallengeCommand implements TabExecutor {
             commands.add("start");
             commands.add("stop");
             commands.add("resume");
+            commands.add("info");
             return commands;
         }
 

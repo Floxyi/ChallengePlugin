@@ -2,8 +2,9 @@ package de.floxyii.challengeplugin;
 
 import de.floxyii.challengeplugin.challenge.ChallengeManager;
 import de.floxyii.challengeplugin.commands.ChallengeCommand;
-import de.floxyii.challengeplugin.commands.ChallengeTimer;
-import de.floxyii.challengeplugin.commands.Timer;
+import de.floxyii.challengeplugin.commands.ModuleCommand;
+import de.floxyii.challengeplugin.commands.TimerCommand;
+import de.floxyii.challengeplugin.challenge.Timer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -34,8 +35,9 @@ public final class ChallengePlugin extends JavaPlugin {
     }
 
     public void commandRegistration() {
-        Objects.requireNonNull(getCommand("timer")).setExecutor(new ChallengeTimer());
+        Objects.requireNonNull(getCommand("timer")).setExecutor(new TimerCommand());
         Objects.requireNonNull(getCommand("challenge")).setExecutor(new ChallengeCommand());
+        Objects.requireNonNull(getCommand("module")).setExecutor(new ModuleCommand());
     }
 
     public static String getPrefix() {
