@@ -3,20 +3,19 @@ package de.floxyii.challengeplugin.challenge.modules;
 import de.floxyii.challengeplugin.ChallengePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
 
-public class HardcoreModule implements Module, Listener {
+public class NoRegenModule implements Module, Listener {
 
     boolean isActive = false;
 
     @Override
     public String getName() {
-        return "Hardcore";
+        return "No-Regeneration";
     }
 
     public String getPrefix() {
@@ -25,7 +24,7 @@ public class HardcoreModule implements Module, Listener {
 
     @Override
     public String getDescription() {
-        return "If you die once, the challenge is over!";
+        return "You cannot regenerate your health!";
     }
 
     @Override
@@ -63,15 +62,12 @@ public class HardcoreModule implements Module, Listener {
     }
 
     @EventHandler
-    public void onPlayerDie(PlayerDeathEvent event) {
+    public void onPlayerRegen(EntityRegainHealthEvent event) {
         if(isActive) {
-            if(event.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
-                event.setCancelled(true);
-                for(Player player : Bukkit.getOnlinePlayers()) {
-                    player.sendMessage(getPrefix() + event.getPlayer().getName() + " got damage from " + event.getPlayer().getLastDamageCause().getCause() + ChatColor.RED + " ❤" + event.getPlayer().getLastDamageCause().getDamage());
-                }
-                ChallengePlugin.getChallengeManager().endChallenge();
+            if(!(event.getEntity() instanceof Player)) {
+                return;
             }
+            event.setCancelled(true);
         }
     }
 

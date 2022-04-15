@@ -3,20 +3,18 @@ package de.floxyii.challengeplugin.challenge.modules;
 import de.floxyii.challengeplugin.ChallengePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
-public class HardcoreModule implements Module, Listener {
+public class HalfHeartModule implements Module, Listener {
 
     boolean isActive = false;
 
     @Override
     public String getName() {
-        return "Hardcore";
+        return "HalfHeart";
     }
 
     public String getPrefix() {
@@ -25,7 +23,7 @@ public class HardcoreModule implements Module, Listener {
 
     @Override
     public String getDescription() {
-        return "If you die once, the challenge is over!";
+        return "You only have one heart!";
     }
 
     @Override
@@ -37,8 +35,8 @@ public class HardcoreModule implements Module, Listener {
             isActive = true;
             for(Player player : Bukkit.getOnlinePlayers()) {
                 player.sendMessage(getPrefix() + ChatColor.GREEN + getName() + "-Module activated!");
+                player.setMaxHealth(1);
             }
-            addListeners();
         }
         if(!bool) {
             if(!isActive) {
@@ -47,8 +45,9 @@ public class HardcoreModule implements Module, Listener {
             isActive = false;
             for(Player player : Bukkit.getOnlinePlayers()) {
                 player.sendMessage(getPrefix() + ChatColor.RED + getName() + "-Module deactivated!");
+                player.setMaxHealth(20);
+                player.setHealth(20);
             }
-            HandlerList.unregisterAll(this);
         }
         return true;
     }
@@ -58,21 +57,9 @@ public class HardcoreModule implements Module, Listener {
         return isActive;
     }
 
-    private void addListeners() {
-        Bukkit.getPluginManager().registerEvents(this, ChallengePlugin.getPlugin());
-    }
-
     @EventHandler
-    public void onPlayerDie(PlayerDeathEvent event) {
-        if(isActive) {
-            if(event.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
-                event.setCancelled(true);
-                for(Player player : Bukkit.getOnlinePlayers()) {
-                    player.sendMessage(getPrefix() + event.getPlayer().getName() + " got damage from " + event.getPlayer().getLastDamageCause().getCause() + ChatColor.RED + " ❤" + event.getPlayer().getLastDamageCause().getDamage());
-                }
-                ChallengePlugin.getChallengeManager().endChallenge();
-            }
-        }
+    public void onJoin(PlayerJoinEvent event) {
+        event.getPlayer().setMaxHealth(1);
     }
 
 }

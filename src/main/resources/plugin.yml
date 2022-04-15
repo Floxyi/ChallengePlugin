@@ -12,3 +12,5 @@ commands:
     description: Start the different challenges! (/challenge <start "challenge name"> <stop> <resume>)
   module:
     description: Add some small modules to your challenge!
+  waypoint:
+    description: Create waypoints!

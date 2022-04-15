@@ -18,14 +18,15 @@ public class ChallengeCommand implements TabExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
 
         if(!(sender instanceof Player)) {
+            sender.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "You need to be a player!");
             return false;
         }
 
         Player player = (Player) sender;
 
-        if(args.length == 0 || args.length > 2 || (args.length == 2 && args[0].equals("stop")) || (args.length == 1 && args[0].equals("start")) || (args.length == 1 && args[0].equals("info"))) {
+        if(args.length == 0 || args.length > 2 || (args.length == 2 && args[0].equals("stop")) || (args.length == 2 && args[0].equals("clear")) || (args.length == 1 && args[0].equals("start")) || (args.length == 1 && args[0].equals("info"))) {
             player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "Failed! Please use " +
-                    ChatColor.GOLD + "/challenge <start \"challenge name\"> <stop> <resume> <info \"challenge name\">" + ChatColor.RED + "!");
+                    ChatColor.GOLD + "/challenge <start \"challenge name\"> <stop> <resume> <clear> <info \"challenge name\">" + ChatColor.RED + "!");
             return false;
         }
 
@@ -60,9 +61,13 @@ public class ChallengeCommand implements TabExecutor {
                 player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.GREEN + "Challenge got resumed!");
                 return true;
             } else {
-                player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "There is no running challenge!");
+                player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "There is no stopped challenge!");
                 return false;
             }
+        }
+
+        if(args[0].equalsIgnoreCase("clear")) {
+            ChallengePlugin.getChallengeManager().clearCurrentChallenge();
         }
 
         if(args[0].equalsIgnoreCase("info")) {
@@ -87,10 +92,11 @@ public class ChallengeCommand implements TabExecutor {
             commands.add("stop");
             commands.add("resume");
             commands.add("info");
+            commands.add("clear");
             return commands;
         }
 
-        if(args.length == 2 && !(args[0].equals("stop")) && !(args[0].equals("resume"))) {
+        if(args.length == 2 && !(args[0].equals("stop")) && !(args[0].equals("resume")) && !(args[0].equals("clear"))) {
             return ChallengePlugin.getChallengeManager().getChallengeNames();
         }
         return new ArrayList<>();

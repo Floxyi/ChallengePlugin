@@ -3,20 +3,20 @@ package de.floxyii.challengeplugin.challenge.modules;
 import de.floxyii.challengeplugin.ChallengePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
 
-public class HardcoreModule implements Module, Listener {
+public class SharedHeartsModule implements Module, Listener {
 
     boolean isActive = false;
 
     @Override
     public String getName() {
-        return "Hardcore";
+        return "Shared-Hearts";
     }
 
     public String getPrefix() {
@@ -25,7 +25,7 @@ public class HardcoreModule implements Module, Listener {
 
     @Override
     public String getDescription() {
-        return "If you die once, the challenge is over!";
+        return "If you take damage, all of the other player will do so too!";
     }
 
     @Override
@@ -63,16 +63,17 @@ public class HardcoreModule implements Module, Listener {
     }
 
     @EventHandler
-    public void onPlayerDie(PlayerDeathEvent event) {
+    public void onPlayerDamage(EntityDamageByEntityEvent event) {
         if(isActive) {
-            if(event.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
-                event.setCancelled(true);
-                for(Player player : Bukkit.getOnlinePlayers()) {
-                    player.sendMessage(getPrefix() + event.getPlayer().getName() + " got damage from " + event.getPlayer().getLastDamageCause().getCause() + ChatColor.RED + " ❤" + event.getPlayer().getLastDamageCause().getDamage());
-                }
-                ChallengePlugin.getChallengeManager().endChallenge();
+            if(!(event.getEntity() instanceof Player)) {
+                return;
+            }
+
+            Player damagedPlayer = (Player) event.getEntity();
+            for(Player player : Bukkit.getOnlinePlayers()) {
+                player.sendMessage(getPrefix() + damagedPlayer.getName() + " got damage from " + event.getCause() + ChatColor.RED + " ❤" + event.getDamage());
+                player.setHealth(player.getHealth() - event.getDamage());
             }
         }
     }
-
 }

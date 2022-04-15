@@ -22,6 +22,10 @@ public class Timer {
         players.addAll(Bukkit.getOnlinePlayers());
     }
 
+    public boolean isActive() {
+        return isRunning;
+    }
+
     public boolean startTimer() {
         if(isRunning) {
             return false;
@@ -60,6 +64,14 @@ public class Timer {
         return true;
     }
 
+    public void setTimer(int time) {
+        this.time = time;
+    }
+
+    public int getTime() {
+        return time;
+    }
+
     public boolean removePlayer(Player player) {
         if(players.contains(player)) {
             players.remove(player);
@@ -67,6 +79,12 @@ public class Timer {
             return true;
         }
         return false;
+    }
+
+    public void addPlayer(Player player) {
+        if(!players.contains(player)) {
+            players.add(player);
+        }
     }
 
     private void updateTimer() {
@@ -92,7 +110,7 @@ public class Timer {
 
         int seconds = time % 60;
         int minutes = (time / 60) % 60;
-        int hours = (time / 360) % 60;
+        int hours = (time / 3600) % 60;
 
 
         if(seconds < 10) {

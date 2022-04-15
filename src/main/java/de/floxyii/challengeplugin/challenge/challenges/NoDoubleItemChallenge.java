@@ -13,6 +13,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 
 public class NoDoubleItemChallenge implements Listener, Challenge {
 
+    boolean isActive = false;
     Item wrongItem = null;
     @Override
     public String getName() {
@@ -27,6 +28,12 @@ public class NoDoubleItemChallenge implements Listener, Challenge {
             player.sendMessage(getPrefix() + ChatColor.GREEN + getName() + "-Challenge got activated!");
         }
         addListeners();
+        isActive = true;
+    }
+
+    @Override
+    public boolean isActive() {
+        return isActive;
     }
 
     @Override
@@ -56,11 +63,16 @@ public class NoDoubleItemChallenge implements Listener, Challenge {
     @Override
     public void stopChallenge() {
         HandlerList.unregisterAll(this);
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            player.sendMessage(getPrefix() + ChatColor.RED + getName() + "-Challenge got deactivated!");
+        }
+        isActive = false;
     }
 
     @Override
     public void resumeChallenge() {
         addListeners();
+        isActive = true;
     }
 
     @Override
@@ -79,4 +91,10 @@ public class NoDoubleItemChallenge implements Listener, Challenge {
     public String getDeathMessage() {
         return ChatColor.RED + "No doubled items in your inventory allowed (" + wrongItem.getItemStack().displayName() + "). You failed!";
     }
+
+    @Override
+    public void saveContents(String path) {}
+
+    @Override
+    public void loadContents(String path) {}
 }

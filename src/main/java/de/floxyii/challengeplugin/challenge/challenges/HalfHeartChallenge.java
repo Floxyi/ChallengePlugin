@@ -1,6 +1,5 @@
 package de.floxyii.challengeplugin.challenge.challenges;
 
-import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import de.floxyii.challengeplugin.ChallengePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -9,19 +8,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 
-public class NoJumpChallenge implements Listener, Challenge {
+public class HalfHeartChallenge implements Listener, Challenge {
 
     boolean isActive = false;
     @Override
     public String getName() {
-        return "NoJump";
+        return "HalfHeart";
     }
 
     public void activateChallenge() {
         for(Player player : Bukkit.getOnlinePlayers()) {
             player.setGameMode(GameMode.SURVIVAL);
             player.sendMessage(getPrefix() + ChatColor.GREEN + getName() + "-Challenge got activated!");
+            player.setMaxHealth(1);
         }
         addListeners();
         isActive = true;
@@ -38,13 +39,12 @@ public class NoJumpChallenge implements Listener, Challenge {
 
     @Override
     public String getDescription() {
-        return "In this challenge you are not allowed to jump! So be carefully going down a deep cave without the " +
-                "needed equipment to get out again! Have a great time :) And please do not cheat by unbinding your jump key!";
+        return "In this challenge you only have half a heart. Spend it wisely or don't spend it at all!";
     }
 
     @Override
     public String getDeathMessage() {
-        return ChatColor.RED + "No Jumps allowed. You failed!";
+        return ChatColor.RED + "Someone lost all of its hearts. You failed!";
     }
 
     @Override
@@ -57,6 +57,8 @@ public class NoJumpChallenge implements Listener, Challenge {
     public void stopChallenge() {
         HandlerList.unregisterAll(this);
         for(Player player : Bukkit.getOnlinePlayers()) {
+            player.setMaxHealth(20);
+            player.setHealth(20);
             player.sendMessage(getPrefix() + ChatColor.RED + getName() + "-Challenge got deactivated!");
         }
         isActive = false;
@@ -65,6 +67,9 @@ public class NoJumpChallenge implements Listener, Challenge {
     @Override
     public void resumeChallenge() {
         addListeners();
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            player.setMaxHealth(1);
+        }
         isActive = true;
     }
 
@@ -74,12 +79,13 @@ public class NoJumpChallenge implements Listener, Challenge {
     }
 
     @EventHandler
-    public void onPlayerMove(PlayerJumpEvent event) {
+    public void onPlayerDie(PlayerDeathEvent event) {
         if(event.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
-            if(event.getTo().getY() - event.getFrom().getY() > 0.35) {
-                event.setCancelled(true);
-                ChallengePlugin.getChallengeManager().endChallenge();
+            event.setCancelled(true);
+            for(Player player : Bukkit.getOnlinePlayers()) {
+                player.sendMessage(getPrefix() + event.getPlayer().getName() + " got damage from " + event.getPlayer().getLastDamageCause().getCause() + ChatColor.RED + " ❤" + event.getPlayer().getLastDamageCause().getDamage());
             }
+            ChallengePlugin.getChallengeManager().endChallenge();
         }
     }
 }

@@ -1,6 +1,7 @@
 package de.floxyii.challengeplugin.challenge.challenges;
 
 import de.floxyii.challengeplugin.ChallengePlugin;
+import de.floxyii.challengeplugin.utils.ChallengeConfig;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,6 +15,8 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.Objects;
 
 public class TheFloorIsLavaChallenge implements Listener, Challenge {
+
+    boolean isActive = false;
     int height;
     BukkitTask lavaUpdater;
 
@@ -31,6 +34,12 @@ public class TheFloorIsLavaChallenge implements Listener, Challenge {
         updateLoadedChunks();
         updateLavaHeight();
         addListeners();
+        isActive = true;
+    }
+
+    @Override
+    public boolean isActive() {
+        return isActive;
     }
 
     private void updateLoadedChunks() {
@@ -62,12 +71,17 @@ public class TheFloorIsLavaChallenge implements Listener, Challenge {
     public void stopChallenge() {
         HandlerList.unregisterAll(this);
         lavaUpdater.cancel();
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            player.sendMessage(getPrefix() + ChatColor.RED + getName() + "-Challenge got deactivated!");
+        }
+        isActive = false;
     }
 
     @Override
     public void resumeChallenge() {
         updateLavaHeight();
         addListeners();
+        isActive = true;
     }
 
     @Override
@@ -85,6 +99,20 @@ public class TheFloorIsLavaChallenge implements Listener, Challenge {
     @Override
     public String getDeathMessage() {
         return ChatColor.RED + "The floor is lava!. You failed!";
+    }
+
+    @Override
+    public void saveContents(String path) {
+        ChallengeConfig config = ChallengePlugin.getChallengeConfig();
+        config.set(path + ".height", height);
+    }
+
+    @Override
+    public void loadContents(String path) {
+        ChallengeConfig config = ChallengePlugin.getChallengeConfig();
+        if(config.get(path + ".height") != null) {
+            height = (int) config.get(path + ".height");
+        }
     }
 
     @Override

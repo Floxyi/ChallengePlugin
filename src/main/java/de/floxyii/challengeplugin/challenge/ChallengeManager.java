@@ -1,16 +1,16 @@
 package de.floxyii.challengeplugin.challenge;
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import de.floxyii.challengeplugin.ChallengePlugin;
-import de.floxyii.challengeplugin.challenge.challenges.Challenge;
-import de.floxyii.challengeplugin.challenge.challenges.NoDoubleItemChallenge;
-import de.floxyii.challengeplugin.challenge.challenges.NoJumpChallenge;
-import de.floxyii.challengeplugin.challenge.challenges.TheFloorIsLavaChallenge;
-import de.floxyii.challengeplugin.challenge.modules.HardcoreModule;
+import de.floxyii.challengeplugin.challenge.challenges.*;
+import de.floxyii.challengeplugin.challenge.modules.*;
 import de.floxyii.challengeplugin.challenge.modules.Module;
+import de.floxyii.challengeplugin.utils.ChallengeConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +26,12 @@ public class ChallengeManager {
         challengesList.add(new TheFloorIsLavaChallenge());
         challengesList.add(new NoJumpChallenge());
         challengesList.add(new NoDoubleItemChallenge());
+        challengesList.add(new HalfHeartChallenge());
 
         modules.add(new HardcoreModule());
-        // modules.add("NoHeartRegen");
-        // modules.add("Shared Hearts");
+        modules.add(new NoRegenModule());
+        modules.add(new SharedHeartsModule());
+        modules.add(new HalfHeartModule());
     }
 
     public List<Challenge> getChallenges() {
@@ -51,6 +53,18 @@ public class ChallengeManager {
             }
         }
         return null;
+    }
+
+    public Challenge getCurrentChallenge() {
+        return runningChallenge;
+    }
+
+    public void clearCurrentChallenge() {
+        stopChallenge();
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            ChallengePlugin.getChallengeTimer().removePlayer(player);
+        }
+        runningChallenge = null;
     }
 
     public List<Module> getModules() {
@@ -76,15 +90,22 @@ public class ChallengeManager {
 
     public boolean setModule(Module module, boolean state) {
         if(runningChallenge != null) {
-            return module.setActive(state);
-        }
-
-        if(state) {
-            runningModules.add(module);
-        } else {
-            runningModules.remove(module);
+            boolean bool = module.setActive(state);
+            if(!bool) {
+                return false;
+            }
+            if(state) {
+                runningModules.add(module);
+            } else {
+                runningModules.remove(module);
+            }
+            return true;
         }
         return false;
+    }
+
+    public List<Module> getCurrentModules() {
+        return runningModules;
     }
 
     public boolean startChallenge(Challenge challenge) {
@@ -105,7 +126,7 @@ public class ChallengeManager {
             runningChallenge.stopChallenge();
             ChallengePlugin.getChallengeTimer().stopTimer();
 
-            for(Module module : getModules()) {
+            for(Module module : runningModules) {
                 module.setActive(false);
             }
 
@@ -116,11 +137,16 @@ public class ChallengeManager {
 
     public boolean resumeChallenge() {
         if(runningChallenge != null) {
+
+            if(runningChallenge.isActive()) {
+                return false;
+            }
+
             runningChallenge.resumeChallenge();
             ChallengePlugin.getChallengeTimer().startTimer();
 
             for(Module module : runningModules) {
-                module.setActive(false);
+                module.setActive(true);
             }
 
             return true;
@@ -138,11 +164,72 @@ public class ChallengeManager {
 
         for(Player player : Bukkit.getOnlinePlayers()) {
             player.sendMessage(runningChallenge.getPrefix() + runningChallenge.getDeathMessage());
-            player.sendMessage(runningChallenge.getPrefix() + "Time wasted: " + ChatColor.GOLD + ChallengePlugin.getChallengeTimer().getFormattedTime());
+            player.sendMessage(runningChallenge.getPrefix() + "Time wasted: " + ChatColor.GOLD + ChallengePlugin.getChallengeTimer().getFormattedTime() + ChatColor.RESET + " [ID: " + ChallengePlugin.getChallengeTimer().getTime() + "]");
             player.setGameMode(GameMode.SPECTATOR);
+            ChallengePlugin.getChallengeTimer().removePlayer(player);
         }
 
+        ChallengePlugin.getChallengeTimer().resetTimer();
         runningChallenge = null;
     }
 
+    public void saveChallengeState() {
+        ChallengeConfig config = ChallengePlugin.getChallengeConfig();
+
+        if(getCurrentChallenge() != null) {
+            runningChallenge.stopChallenge();
+            config.set("challenge.type", runningChallenge.getName());
+            runningChallenge.saveContents("challenge.contents");
+            config.set("challenge.active", true);
+        } else {
+            Bukkit.getLogger().info("here");
+            config.set("challenge.active", false);
+        }
+
+        if(ChallengePlugin.getChallengeTimer().getTime() != 0) {
+            ChallengePlugin.getChallengeTimer().stopTimer();
+            config.set("timer.time", ChallengePlugin.getChallengeTimer().getTime());
+            config.set("timer.active", true);
+        } else {
+            config.set("timer.active", false);
+        }
+
+        List<String> moduleNames = new ArrayList<>();
+        for(Module module : getCurrentModules()) {
+            moduleNames.add(module.getName());
+            module.setActive(false);
+        }
+        config.set("modules.active", moduleNames);
+    }
+
+    public void loadChallengeState() {
+        ChallengeConfig config = ChallengePlugin.getChallengeConfig();
+
+        if(config.get("challenge.active") != null) {
+            boolean active = (Boolean) config.get("challenge.active");
+            if(active) {
+                String challengeName = (String) config.get("challenge.type");
+                Challenge challenge = getChallenge(challengeName);
+                startChallenge(challenge);
+                challenge.loadContents("challenge.contents");
+            }
+        }
+
+        if(config.get("timer.active") != null) {
+            boolean active = (Boolean) config.get("timer.active");
+            if (active) {
+                int time = (int) config.get("timer.time");
+                ChallengePlugin.getChallengeTimer().setTimer(time);
+                ChallengePlugin.getChallengeTimer().startTimer();
+                ChallengePlugin.getChallengeTimer().stopTimer();
+            }
+        }
+
+        if(config.get("modules.active") != null) {
+            List<String> moduleNames = (List<String>) config.get("modules.active");
+            for(String moduleName : moduleNames) {
+                setModule(getModule(moduleName), true);
+            }
+        }
+    }
 }

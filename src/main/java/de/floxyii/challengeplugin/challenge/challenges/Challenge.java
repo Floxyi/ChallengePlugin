@@ -7,10 +7,16 @@ public interface Challenge {
     String getDescription();
 
     void activateChallenge();
+
+    boolean isActive();
     void addListeners();
 
     void stopChallenge();
     void resumeChallenge();
 
     String getDeathMessage();
+
+    void saveContents(String path);
+
+    void loadContents(String path);
 }
