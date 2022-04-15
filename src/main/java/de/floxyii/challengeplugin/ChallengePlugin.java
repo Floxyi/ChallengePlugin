@@ -27,8 +27,8 @@ public final class ChallengePlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         plugin = this;
-        challengeManager = new ChallengeManager();
         challengeConfig = new ChallengeConfig();
+        challengeManager = new ChallengeManager();
 
         Bukkit.getLogger().info(getPrefix() + "Plugin got activated!");
 

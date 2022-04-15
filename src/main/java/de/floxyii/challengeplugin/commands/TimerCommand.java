@@ -67,7 +67,7 @@ public class TimerCommand implements TabExecutor {
 
         if(args[0].equalsIgnoreCase("set")) {
             timer.setTimer(Integer.parseInt(args[1]));
-            player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.GREEN + "Timer set to: " + ChatColor.GOLD + timer.getFormattedTime() + " !");
+            player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.GREEN + "Timer set to: " + ChatColor.GOLD + timer.getFormattedTime() + ChatColor.GREEN + "!");
         }
 
         return false;

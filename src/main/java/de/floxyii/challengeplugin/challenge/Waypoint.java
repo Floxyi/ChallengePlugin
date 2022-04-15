@@ -4,9 +4,9 @@ import org.bukkit.ChatColor;
 
 public class Waypoint {
 
-    private final double x;
-    private final double y;
-    private final double z;
+    public final double x;
+    public final double y;
+    public final double z;
     public final String name;
 
     public Waypoint(double x, double y, double z, String name) {

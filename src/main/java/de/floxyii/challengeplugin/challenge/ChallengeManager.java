@@ -1,6 +1,5 @@
 package de.floxyii.challengeplugin.challenge;
 
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import de.floxyii.challengeplugin.ChallengePlugin;
 import de.floxyii.challengeplugin.challenge.challenges.*;
 import de.floxyii.challengeplugin.challenge.modules.*;
@@ -10,7 +9,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +19,8 @@ public class ChallengeManager {
     List<Challenge> challengesList = new ArrayList<>();
     List<Module> modules = new ArrayList<>();
     List<Module> runningModules = new ArrayList<>();
+
+    public List<Waypoint> waypoints = new ArrayList<>();
 
     public ChallengeManager() {
         challengesList.add(new TheFloorIsLavaChallenge());
@@ -200,6 +200,16 @@ public class ChallengeManager {
             module.setActive(false);
         }
         config.set("modules.active", moduleNames);
+
+        if(!waypoints.isEmpty()) {
+            config.set("waypoints.amount", waypoints.size());
+            for(int i = 0; i < waypoints.size(); i++) {
+                config.set("waypoints." + i + ".Name", waypoints.get(i).name);
+                config.set("waypoints." + i + ".X", waypoints.get(i).x);
+                config.set("waypoints." + i + ".Y", waypoints.get(i).y);
+                config.set("waypoints." + i + ".Z", waypoints.get(i).z);
+            }
+        }
     }
 
     public void loadChallengeState() {
@@ -229,6 +239,17 @@ public class ChallengeManager {
             List<String> moduleNames = (List<String>) config.get("modules.active");
             for(String moduleName : moduleNames) {
                 setModule(getModule(moduleName), true);
+            }
+        }
+
+        if(config.get("waypoints.amount") != null) {
+            for (int i = 0; i < (int) config.get("waypoints.amount"); i++) {
+                String name = (String) config.get("waypoints." + i + ".Name");
+                double x = (double) config.get("waypoints." + i + ".X");
+                double y = (double) config.get("waypoints." + i + ".Y");
+                double z = (double) config.get("waypoints." + i + ".Z");
+
+                ChallengePlugin.getChallengeManager().waypoints.add(new Waypoint(x, y, z, name));
             }
         }
     }

@@ -15,8 +15,6 @@ import java.util.List;
 
 public class WaypointCommand implements TabExecutor {
 
-    List<Waypoint> waypoints = new ArrayList<>();
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
 
@@ -27,7 +25,7 @@ public class WaypointCommand implements TabExecutor {
 
         Player player = (Player) sender;
 
-        if(args.length != 2 && !(args[0].equalsIgnoreCase("show"))) {
+        if(args.length != 2) {
             player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "Failed! Please use " +
                     ChatColor.GOLD + "/waypoint <create \"waypoint name\"> <show \"waypoint name\"> <delete \"waypoint name\">" + ChatColor.RED + "!");
             return false;
@@ -37,17 +35,17 @@ public class WaypointCommand implements TabExecutor {
 
             String name = args[1];
 
-            for(Waypoint waypoint : waypoints) {
+            for(Waypoint waypoint : ChallengePlugin.getChallengeManager().waypoints) {
                 if(waypoint.name.equals(name)) {
                     player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "A waypoint with the name " + ChatColor.GOLD + name + ChatColor.RED + " already exists!");
                     return false;
                 }
             }
 
-            waypoints.add(new Waypoint(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ(), name));
+            ChallengePlugin.getChallengeManager().waypoints.add(new Waypoint(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ(), name));
 
             Waypoint createdWaypoint = null;
-            for(Waypoint waypoint : waypoints) {
+            for(Waypoint waypoint : ChallengePlugin.getChallengeManager().waypoints) {
                 if(waypoint.name.equals(name)) {
                     createdWaypoint = waypoint;
                 }
@@ -65,7 +63,7 @@ public class WaypointCommand implements TabExecutor {
         if(args[0].equalsIgnoreCase("show")) {
 
             if(args[1].equals("")) {
-                for(Waypoint waypoint : waypoints) {
+                for(Waypoint waypoint : ChallengePlugin.getChallengeManager().waypoints) {
                     player.sendMessage(ChallengePlugin.getPrefix() + waypoint.getCoordinates());
                 }
                 return true;
@@ -74,7 +72,7 @@ public class WaypointCommand implements TabExecutor {
             String waypointName = args[1];
 
             Waypoint searchedWaypoint = null;
-            for(Waypoint waypoint : waypoints) {
+            for(Waypoint waypoint : ChallengePlugin.getChallengeManager().waypoints) {
                 if(waypoint.name.equals(waypointName)) {
                     searchedWaypoint = waypoint;
                 }
@@ -93,7 +91,7 @@ public class WaypointCommand implements TabExecutor {
             String waypointName = args[1];
 
             Waypoint searchedWaypoint = null;
-            for(Waypoint waypoint : waypoints) {
+            for(Waypoint waypoint : ChallengePlugin.getChallengeManager().waypoints) {
                 if(waypoint.name.equals(waypointName)) {
                     searchedWaypoint = waypoint;
                 }
@@ -104,7 +102,7 @@ public class WaypointCommand implements TabExecutor {
                 return false;
             }
 
-            waypoints.remove(searchedWaypoint);
+            ChallengePlugin.getChallengeManager().waypoints.remove(searchedWaypoint);
             player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.GREEN + "Successfully deleted Waypoint! [" + ChatColor.GOLD + searchedWaypoint.name + ChatColor.GREEN + "]");
             return true;
         }
@@ -122,12 +120,12 @@ public class WaypointCommand implements TabExecutor {
             return commands;
         }
 
-        if(args.length == 2) {
+        if(args.length == 2 && (!args[0].equalsIgnoreCase("create"))) {
             List<String> waypointNames = new ArrayList<>();
-            for(Waypoint waypoint : waypoints) {
+            for(Waypoint waypoint : ChallengePlugin.getChallengeManager().waypoints) {
                 waypointNames.add(waypoint.name);
             }
-            return  waypointNames;
+            return waypointNames;
         }
 
         return new ArrayList<>();
