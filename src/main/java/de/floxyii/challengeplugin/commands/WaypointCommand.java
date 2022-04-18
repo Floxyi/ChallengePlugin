@@ -32,7 +32,6 @@ public class WaypointCommand implements TabExecutor {
         }
 
         if(args[0].equalsIgnoreCase("create")) {
-
             String name = args[1];
 
             for(Waypoint waypoint : ChallengePlugin.getChallengeManager().waypoints) {

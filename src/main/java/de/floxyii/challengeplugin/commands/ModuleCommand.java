@@ -26,25 +26,36 @@ public class ModuleCommand implements TabExecutor {
 
         if(args.length < 1 || args.length > 3 || (args.length != 3 && args[0].equals("edit")) || (args.length > 2 && args[0].equals("show")) || (args.length != 2 && args[0].equals("info"))) {
             player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "Failed! Please use " +
-                    ChatColor.GOLD + "/module <edit \"module\" \"bool\"> <show \"module\"> <info \"module\">" + ChatColor.RED + "!");
+                    ChatColor.GOLD + "/module <edit \"module\" \"bool\"> <show \"module\"> <info \"module\"> <clear>" + ChatColor.RED + "!");
             return false;
         }
 
         if(args[0].equalsIgnoreCase("edit")) {
             Module module = ChallengePlugin.getChallengeManager().getModule(args[1]);
+
+            if(!(args[2].equalsIgnoreCase("false") || args[2].equalsIgnoreCase("true"))) {
+                return false;
+            }
+
             boolean state = Boolean.parseBoolean(args[2]);
 
             if(module == null) {
-                player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "Module wasn't found!");
+                player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "Module" + ChatColor.GOLD + args[1] + ChatColor.RED + "wasn't found!");
                 return false;
             }
 
-            if(ChallengePlugin.getChallengeManager().setModule(module, state)) {
+            if(!module.isActive()) {
+                if(state) {
+                    player.sendMessage(ChallengePlugin.getPrefix() + module.getName() + "-Module got deactivated");
+                } else {
+                    player.sendMessage(ChallengePlugin.getPrefix() + module.getName() + "-Module got activated!");
+                }
+                ChallengePlugin.getChallengeManager().setModule(module, state);
                 return true;
-            } else {
-                player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "Module is already in that state or no challenge is already running!");
-                return false;
             }
+
+            player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "Module " + ChatColor.GOLD + module.getName() + ChatColor.RED + "is already in that state or no challenge is already running!");
+            return false;
         }
 
         if(args[0].equalsIgnoreCase("show")) {
@@ -52,11 +63,11 @@ public class ModuleCommand implements TabExecutor {
                 Module module = ChallengePlugin.getChallengeManager().getModule(args[1]);
 
                 if(module == null) {
-                    player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "Module wasn't found!");
+                    player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "Module " + ChatColor.GOLD + args[1] + ChatColor.RED + "wasn't found!");
                     return false;
                 }
 
-                if(module.getActive()) {
+                if(module.isActive()) {
                     player.sendMessage(ChallengePlugin.getPrefix() + module.getName() + "-Module (" + ChatColor.GREEN + "true" + ChatColor.RESET + "):");
                 } else {
                     player.sendMessage(ChallengePlugin.getPrefix() + module.getName() + "-Module (" + ChatColor.RED + "false" + ChatColor.RESET + "):");
@@ -67,9 +78,9 @@ public class ModuleCommand implements TabExecutor {
 
             player.sendMessage(ChallengePlugin.getPrefix() + "---------------------------");
             player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.GOLD + "Overview:");
-            for(Module module : ChallengePlugin.getChallengeManager().getModules()) {
+            for(Module module : ChallengePlugin.getChallengeManager().getModulesList()) {
                 player.sendMessage("");
-                if(module.getActive()) {
+                if(module.isActive()) {
                     player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.GREEN + module.getName() + ChatColor.RESET + "-Module (" + ChatColor.GREEN + "true" + ChatColor.RESET + "):");
                 } else {
                     player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.GREEN + module.getName() + ChatColor.RESET + "-Module (" + ChatColor.RED + "false" + ChatColor.RESET + "):");
@@ -84,11 +95,25 @@ public class ModuleCommand implements TabExecutor {
             Module module = ChallengePlugin.getChallengeManager().getModule(args[1]);
 
             if(module == null) {
-                player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "Module wasn't found!");
+                player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "Module " + ChatColor.GOLD + args[1] + ChatColor.RED + "wasn't found!");
                 return false;
             }
 
             player.sendMessage(ChallengePlugin.getPrefix() + module.getDescription());
+            return true;
+        }
+
+        if(args[0].equalsIgnoreCase("clear")) {
+            if(ChallengePlugin.getChallengeManager().getActiveModules().isEmpty()) {
+                player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "No modules currently active!");
+                return false;
+            }
+
+            for(Module module : ChallengePlugin.getChallengeManager().getActiveModules()) {
+                ChallengePlugin.getChallengeManager().setModule(module, false);
+            }
+            player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.GREEN + "All modules got deactivated!");
+            return true;
         }
 
         return false;
@@ -101,6 +126,7 @@ public class ModuleCommand implements TabExecutor {
             commands.add("edit");
             commands.add("show");
             commands.add("info");
+            commands.add("clear");
             return commands;
         }
 

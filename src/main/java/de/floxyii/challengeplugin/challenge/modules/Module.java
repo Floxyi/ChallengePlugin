@@ -5,5 +5,5 @@ public interface Module {
     String getName();
     String getDescription();
     boolean setActive(boolean bool);
-    boolean getActive();
+    boolean isActive();
 }

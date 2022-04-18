@@ -30,18 +30,19 @@ public final class ChallengePlugin extends JavaPlugin {
         challengeConfig = new ChallengeConfig();
         challengeManager = new ChallengeManager();
 
-        Bukkit.getLogger().info(getPrefix() + "Plugin got activated!");
+        Bukkit.getLogger().info(getPrefix() + "Challenge-Plugin got activated!");
 
         timer = new Timer();
 
         commandRegistration();
         listenerRegistration();
+
         getChallengeManager().loadChallengeState();
     }
 
     @Override
     public void onDisable() {
-        Bukkit.getLogger().info(getPrefix() + "Plugin got disabled!");
+        Bukkit.getLogger().info(getPrefix() + "Challenge-Plugin got disabled!");
         getChallengeManager().saveChallengeState();
     }
 
@@ -59,7 +60,7 @@ public final class ChallengePlugin extends JavaPlugin {
     }
 
     public static String getPrefix() {
-        return ChatColor.GRAY + "[" + ChatColor.GOLD + "Challenge Plugin" + ChatColor.GRAY + "] " + ChatColor.RESET;
+        return ChatColor.GRAY + "[" + ChatColor.GOLD + "Challenge-Plugin" + ChatColor.GRAY + "] " + ChatColor.RESET;
     }
 
     public static ChallengePlugin getPlugin() {

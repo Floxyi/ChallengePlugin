@@ -16,16 +16,16 @@ public class JoinListener implements Listener {
         player.setPlayerListHeader(ChatColor.GOLD + "-= Challenge Server =-");
         player.setPlayerListFooter(ChatColor.GREEN + "made by Floxyii with " + ChatColor.RED + "❤");
 
-        if(ChallengePlugin.getChallengeManager().getCurrentChallenge() != null) {
-            if(ChallengePlugin.getChallengeManager().getCurrentChallenge().isActive()) {
-                player.sendMessage(ChallengePlugin.getPrefix() + "Challenge running: " + ChatColor.GOLD + ChallengePlugin.getChallengeManager().getCurrentChallenge().getName());
+        if(ChallengePlugin.getChallengeManager().getRunningChallenge() != null) {
+            if(ChallengePlugin.getChallengeManager().getRunningChallenge().isActive()) {
+                player.sendMessage(ChallengePlugin.getPrefix() + "Challenge running: " + ChatColor.GOLD + ChallengePlugin.getChallengeManager().getRunningChallenge().getName());
             } else {
-                player.sendMessage(ChallengePlugin.getPrefix() + "Challenge stopped: " + ChatColor.GOLD + ChallengePlugin.getChallengeManager().getCurrentChallenge().getName());
+                player.sendMessage(ChallengePlugin.getPrefix() + "Challenge stopped: " + ChatColor.GOLD + ChallengePlugin.getChallengeManager().getRunningChallenge().getName());
             }
         }
 
-        if(!ChallengePlugin.getChallengeManager().getCurrentModules().isEmpty()) {
-            for(Module module : ChallengePlugin.getChallengeManager().getCurrentModules()) {
+        if(!ChallengePlugin.getChallengeManager().getActiveModules().isEmpty()) {
+            for(Module module : ChallengePlugin.getChallengeManager().getActiveModules()) {
                 player.sendMessage(ChallengePlugin.getPrefix() + "Module active: " + ChatColor.GOLD + module.getName());
             }
         }

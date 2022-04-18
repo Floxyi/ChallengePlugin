@@ -3,14 +3,14 @@ version: ${project.version}
 main: de.floxyii.challengeplugin.ChallengePlugin
 api-version: 1.18
 authors: [ Floxyii ]
-description: A challenge Plugin
+description: A small and easy to use Challenge-Plugin!
 
 commands:
   timer:
-    description: Start the timer! (/timer <start> <stop> <reset> <remove>)
+    description: Start the timer! (/timer <start> <stop> <remove> <reset> <set "time">)
   challenge:
-    description: Start the different challenges! (/challenge <start "challenge name"> <stop> <resume>)
+    description: Start the different challenges! (/challenge <start "challenge name"> <stop> <resume> <clear> <info "challenge name">)
   module:
-    description: Add some small modules to your challenge!
+    description: Add some small modules to your challenge! (/module <edit "module" "bool"> <show "module"> <info "module"> <clear>)
   waypoint:
-    description: Create waypoints!
+    description: Create waypoints! (/waypoint <create "waypoint name"> <show "waypoint name"> <delete "waypoint name">)

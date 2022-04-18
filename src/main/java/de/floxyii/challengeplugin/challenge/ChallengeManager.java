@@ -15,23 +15,22 @@ import java.util.List;
 
 public class ChallengeManager {
 
-    Challenge runningChallenge = null;
-    List<Challenge> challengesList = new ArrayList<>();
-    List<Module> modules = new ArrayList<>();
-    List<Module> runningModules = new ArrayList<>();
-
+    private final List<Challenge> challengesList = new ArrayList<>();
+    private Challenge runningChallenge = null;
+    private final List<Module> modulesList = new ArrayList<>();
+    private final List<Module> runningModules = new ArrayList<>();
     public List<Waypoint> waypoints = new ArrayList<>();
 
     public ChallengeManager() {
         challengesList.add(new TheFloorIsLavaChallenge());
-        challengesList.add(new NoJumpChallenge());
         challengesList.add(new NoDoubleItemChallenge());
         challengesList.add(new HalfHeartChallenge());
+        challengesList.add(new NoJumpChallenge());
 
-        modules.add(new HardcoreModule());
-        modules.add(new NoRegenModule());
-        modules.add(new SharedHeartsModule());
-        modules.add(new HalfHeartModule());
+        modulesList.add(new SharedHeartsModule());
+        modulesList.add(new HalfHeartModule());
+        modulesList.add(new HardcoreModule());
+        modulesList.add(new NoRegenModule());
     }
 
     public List<Challenge> getChallenges() {
@@ -55,11 +54,11 @@ public class ChallengeManager {
         return null;
     }
 
-    public Challenge getCurrentChallenge() {
+    public Challenge getRunningChallenge() {
         return runningChallenge;
     }
 
-    public void clearCurrentChallenge() {
+    public void clearRunningChallenge() {
         stopChallenge();
         for(Player player : Bukkit.getOnlinePlayers()) {
             ChallengePlugin.getChallengeTimer().removePlayer(player);
@@ -67,20 +66,20 @@ public class ChallengeManager {
         runningChallenge = null;
     }
 
-    public List<Module> getModules() {
-        return modules;
+    public List<Module> getModulesList() {
+        return modulesList;
     }
 
     public List<String> getModuleNames() {
         List<String> names = new ArrayList<>();
-        for(Module module : getModules()) {
+        for(Module module : getModulesList()) {
             names.add(module.getName());
         }
         return names;
     }
 
     public Module getModule(String moduleName) {
-        for(Module module : getModules()) {
+        for(Module module : getModulesList()) {
             if(module.getName().equals(moduleName)) {
                 return module;
             }
@@ -88,40 +87,35 @@ public class ChallengeManager {
         return null;
     }
 
-    public boolean setModule(Module module, boolean state) {
+    public void setModule(Module module, boolean state) {
         if(runningChallenge != null) {
             boolean bool = module.setActive(state);
             if(!bool) {
-                return false;
+                return;
             }
             if(state) {
                 runningModules.add(module);
             } else {
                 runningModules.remove(module);
             }
-            return true;
         }
-        return false;
     }
 
-    public List<Module> getCurrentModules() {
+    public List<Module> getActiveModules() {
         return runningModules;
     }
 
-    public boolean startChallenge(Challenge challenge) {
+    public void startChallenge(Challenge challenge) {
         if(runningChallenge == null) {
             runningChallenge = challenge;
 
             challenge.activateChallenge();
             ChallengePlugin.getChallengeTimer().resetTimer();
             ChallengePlugin.getChallengeTimer().startTimer();
-
-            return true;
         }
-        return false;
     }
 
-    public boolean stopChallenge() {
+    public void stopChallenge() {
         if(runningChallenge != null) {
             runningChallenge.stopChallenge();
             ChallengePlugin.getChallengeTimer().stopTimer();
@@ -129,10 +123,7 @@ public class ChallengeManager {
             for(Module module : runningModules) {
                 module.setActive(false);
             }
-
-            return true;
         }
-        return false;
     }
 
     public boolean resumeChallenge() {
@@ -158,7 +149,7 @@ public class ChallengeManager {
         ChallengePlugin.getChallengeTimer().stopTimer();
         runningChallenge.stopChallenge();
 
-        for(Module module : getModules()) {
+        for(Module module : getModulesList()) {
             module.setActive(false);
         }
 
@@ -176,7 +167,7 @@ public class ChallengeManager {
     public void saveChallengeState() {
         ChallengeConfig config = ChallengePlugin.getChallengeConfig();
 
-        if(getCurrentChallenge() != null) {
+        if(getRunningChallenge() != null) {
             runningChallenge.stopChallenge();
             config.set("challenge.type", runningChallenge.getName());
             runningChallenge.saveContents("challenge.contents");
@@ -195,7 +186,7 @@ public class ChallengeManager {
         }
 
         List<String> moduleNames = new ArrayList<>();
-        for(Module module : getCurrentModules()) {
+        for(Module module : getActiveModules()) {
             moduleNames.add(module.getName());
             module.setActive(false);
         }

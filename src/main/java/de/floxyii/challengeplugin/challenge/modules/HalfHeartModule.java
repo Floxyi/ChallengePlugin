@@ -53,7 +53,7 @@ public class HalfHeartModule implements Module, Listener {
     }
 
     @Override
-    public boolean getActive() {
+    public boolean isActive() {
         return isActive;
     }
 
