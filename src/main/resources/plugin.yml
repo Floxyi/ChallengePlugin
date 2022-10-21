@@ -1,7 +1,7 @@
 name: ChallengePlugin
 version: ${project.version}
 main: de.floxyii.challengeplugin.ChallengePlugin
-api-version: 1.18
+api-version: 1.19
 authors: [ Floxyii ]
 description: A small and easy to use Challenge-Plugin!
 

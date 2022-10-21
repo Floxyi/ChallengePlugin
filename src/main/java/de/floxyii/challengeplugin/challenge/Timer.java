@@ -16,7 +16,7 @@ public class Timer {
     boolean isRunning;
     int time = 0;
     BukkitTask updater;
-    ArrayList<Player> players = new ArrayList<>();
+    final ArrayList<Player> players = new ArrayList<>();
 
     public Timer() {
         players.addAll(Bukkit.getOnlinePlayers());

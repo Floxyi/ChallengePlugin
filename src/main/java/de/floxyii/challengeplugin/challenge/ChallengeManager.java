@@ -19,7 +19,7 @@ public class ChallengeManager {
     private Challenge runningChallenge = null;
     private final List<Module> modulesList = new ArrayList<>();
     private final List<Module> runningModules = new ArrayList<>();
-    public List<Waypoint> waypoints = new ArrayList<>();
+    public final List<Waypoint> waypoints = new ArrayList<>();
 
     public ChallengeManager() {
         challengesList.add(new TheFloorIsLavaChallenge());
@@ -173,7 +173,6 @@ public class ChallengeManager {
             runningChallenge.saveContents("challenge.contents");
             config.set("challenge.active", true);
         } else {
-            Bukkit.getLogger().info("here");
             config.set("challenge.active", false);
         }
 
@@ -203,6 +202,7 @@ public class ChallengeManager {
         }
     }
 
+    @SuppressWarnings (value="unchecked")
     public void loadChallengeState() {
         ChallengeConfig config = ChallengePlugin.getChallengeConfig();
 
@@ -240,7 +240,7 @@ public class ChallengeManager {
                 double y = (double) config.get("waypoints." + i + ".Y");
                 double z = (double) config.get("waypoints." + i + ".Z");
 
-                ChallengePlugin.getChallengeManager().waypoints.add(new Waypoint(x, y, z, name));
+                waypoints.add(new Waypoint(x, y, z, name));
             }
         }
     }

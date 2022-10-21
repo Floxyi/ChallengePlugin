@@ -7,15 +7,13 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ChallengeCommand implements TabExecutor {
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
 
         if(!(sender instanceof Player)) {
             sender.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "You need to be a player!");
@@ -31,16 +29,16 @@ public class ChallengeCommand implements TabExecutor {
         }
 
         if(args[0].equalsIgnoreCase("start")) {
-            Challenge challenge = ChallengePlugin.getChallengeManager().getChallenge(args[1]);
+            Challenge challengeFromArg = ChallengePlugin.getChallengeManager().getChallenge(args[1]);
 
-            if(challenge == null) {
+            if(challengeFromArg == null) {
                 player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.RED + "Challenge " + ChatColor.GOLD + args[1] + ChatColor.RED + " wasn't found!");
                 return false;
             }
 
-            if(ChallengePlugin.getChallengeManager().getRunningChallenge() != null) {
-                player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.GREEN + "The challenge " + ChatColor.GOLD + challenge.getName() + ChatColor.GREEN + " is now running!");
-                ChallengePlugin.getChallengeManager().startChallenge(challenge);
+            if(ChallengePlugin.getChallengeManager().getRunningChallenge() == null) { // previously != null
+                player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.GREEN + "The challenge " + ChatColor.GOLD + challengeFromArg.getName() + ChatColor.GREEN + " is now running!");
+                ChallengePlugin.getChallengeManager().startChallenge(challengeFromArg);
                 return true;
             }
 
@@ -100,7 +98,7 @@ public class ChallengeCommand implements TabExecutor {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+    public List<String> onTabComplete(CommandSender sender, Command command, String s, String[] args) {
         if(args.length == 1) {
             List<String> commands = new ArrayList<>();
             commands.add("start");

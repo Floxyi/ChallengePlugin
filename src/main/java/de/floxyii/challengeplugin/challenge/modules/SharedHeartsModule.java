@@ -8,7 +8,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityRegainHealthEvent;
 
 public class SharedHeartsModule implements Module, Listener {
 
@@ -71,7 +70,7 @@ public class SharedHeartsModule implements Module, Listener {
 
             Player damagedPlayer = (Player) event.getEntity();
             for(Player player : Bukkit.getOnlinePlayers()) {
-                player.sendMessage(getPrefix() + damagedPlayer.getName() + " got damage from " + event.getCause() + ChatColor.RED + " ❤" + event.getDamage());
+                player.sendMessage(getPrefix() + damagedPlayer.getName() + " got damage from " + event.getCause() + ChatColor.RED + " ❤" + event.getDamage() / 2);
                 player.setHealth(player.getHealth() - event.getDamage());
             }
         }

@@ -6,7 +6,7 @@
 
     <groupId>de.floxyii</groupId>
     <artifactId>ChallengePlugin</artifactId>
-    <version>1.0.2</version>
+    <version>1.1.2</version>
     <packaging>jar</packaging>
 
     <name>ChallengePlugin</name>
@@ -24,7 +24,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.2.0</version>
                 <configuration>
-                    <outputDirectory>/Users/florian/Documents/MinecraftServers/Paper_1182/plugins</outputDirectory>
+                    <outputDirectory>/Users/florian/Documents/MinecraftServers/Purpur_1192/plugins</outputDirectory>
                 </configuration>
             </plugin>
             <plugin>
@@ -63,8 +63,8 @@
 
     <repositories>
         <repository>
-            <id>papermc-repo</id>
-            <url>https://papermc.io/repo/repository/maven-public/</url>
+            <id>spigotmc-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
         <repository>
             <id>sonatype</id>
@@ -74,9 +74,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.papermc.paper</groupId>
-            <artifactId>paper-api</artifactId>
-            <version>1.18.2-R0.1-SNAPSHOT</version>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.19.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

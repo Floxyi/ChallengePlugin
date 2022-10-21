@@ -4,11 +4,14 @@ import de.floxyii.challengeplugin.ChallengePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+
+import java.util.Objects;
 
 public class HalfHeartChallenge implements Listener, Challenge {
 
@@ -22,9 +25,10 @@ public class HalfHeartChallenge implements Listener, Challenge {
         for(Player player : Bukkit.getOnlinePlayers()) {
             player.setGameMode(GameMode.SURVIVAL);
             player.sendMessage(getPrefix() + ChatColor.GREEN + getName() + "-Challenge got activated!");
-            player.setMaxHealth(1);
+            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(1);
         }
-        addListeners();
+
+        registerListener();
         isActive = true;
     }
 
@@ -56,36 +60,49 @@ public class HalfHeartChallenge implements Listener, Challenge {
     @Override
     public void stopChallenge() {
         HandlerList.unregisterAll(this);
+
         for(Player player : Bukkit.getOnlinePlayers()) {
-            player.setMaxHealth(20);
+            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20);
             player.setHealth(20);
             player.sendMessage(getPrefix() + ChatColor.RED + getName() + "-Challenge got deactivated!");
         }
+
         isActive = false;
     }
 
     @Override
     public void resumeChallenge() {
-        addListeners();
+        registerListener();
+
         for(Player player : Bukkit.getOnlinePlayers()) {
-            player.setMaxHealth(1);
+            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(1);
         }
+
         isActive = true;
     }
 
     @Override
-    public void addListeners() {
+    public void registerListener() {
         Bukkit.getPluginManager().registerEvents(this, ChallengePlugin.getPlugin());
     }
 
     @EventHandler
     public void onPlayerDie(PlayerDeathEvent event) {
-        if(event.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
-            event.setCancelled(true);
-            for(Player player : Bukkit.getOnlinePlayers()) {
-                player.sendMessage(getPrefix() + event.getPlayer().getName() + " got damage from " + event.getPlayer().getLastDamageCause().getCause() + ChatColor.RED + " ❤" + event.getPlayer().getLastDamageCause().getDamage());
-            }
-            ChallengePlugin.getChallengeManager().endChallenge();
+        Player player = event.getEntity().getPlayer();
+
+        if(player == null) {
+            return;
+        }
+
+        if(!(player.getGameMode().equals(GameMode.SURVIVAL))) {
+            return;
+        }
+
+        for(Player players : Bukkit.getOnlinePlayers()) {
+            players.sendMessage(getPrefix() + player.getName() +
+                    " got damage by " + ChatColor.GREEN +
+                    Objects.requireNonNull(player.getLastDamageCause()).getCause() +
+                    ChatColor.RED + " ❤" + player.getLastDamageCause().getDamage() / 2);
         }
     }
 }

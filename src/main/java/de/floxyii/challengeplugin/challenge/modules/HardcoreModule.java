@@ -10,6 +10,8 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
+import java.util.Objects;
+
 public class HardcoreModule implements Module, Listener {
 
     boolean isActive = false;
@@ -64,15 +66,24 @@ public class HardcoreModule implements Module, Listener {
 
     @EventHandler
     public void onPlayerDie(PlayerDeathEvent event) {
-        if(isActive) {
-            if(event.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
-                event.setCancelled(true);
-                for(Player player : Bukkit.getOnlinePlayers()) {
-                    player.sendMessage(getPrefix() + event.getPlayer().getName() + " got damage from " + event.getPlayer().getLastDamageCause().getCause() + ChatColor.RED + " ❤" + event.getPlayer().getLastDamageCause().getDamage());
-                }
-                ChallengePlugin.getChallengeManager().endChallenge();
-            }
+        if(!isActive) {
+            return;
         }
+
+        if(!(Objects.requireNonNull(event.getEntity().getPlayer()).getGameMode().equals(GameMode.SURVIVAL))) {
+            return;
+        }
+
+        Player player = event.getEntity().getPlayer();
+
+        for(Player players : Bukkit.getOnlinePlayers()) {
+            players.sendMessage(getPrefix() + player.getName() +
+                    " got damage by " + ChatColor.GREEN +
+                    Objects.requireNonNull(player.getLastDamageCause()).getCause() + " " +
+                    ChatColor.RED + player.getLastDamageCause().getDamage() / 2 + "❤");
+        }
+
+        ChallengePlugin.getChallengeManager().endChallenge();
     }
 
 }

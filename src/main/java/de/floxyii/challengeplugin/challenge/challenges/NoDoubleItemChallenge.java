@@ -11,6 +11,8 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 
+import java.util.Objects;
+
 public class NoDoubleItemChallenge implements Listener, Challenge {
 
     boolean isActive = false;
@@ -23,11 +25,13 @@ public class NoDoubleItemChallenge implements Listener, Challenge {
     @Override
     public void activateChallenge() {
         wrongItem = null;
+
         for(Player player : Bukkit.getOnlinePlayers()) {
             player.setGameMode(GameMode.SURVIVAL);
             player.sendMessage(getPrefix() + ChatColor.GREEN + getName() + "-Challenge got activated!");
         }
-        addListeners();
+
+        registerListener();
         isActive = true;
     }
 
@@ -37,7 +41,7 @@ public class NoDoubleItemChallenge implements Listener, Challenge {
     }
 
     @Override
-    public void addListeners() {
+    public void registerListener() {
         Bukkit.getPluginManager().registerEvents(this, ChallengePlugin.getPlugin());
     }
 
@@ -71,7 +75,7 @@ public class NoDoubleItemChallenge implements Listener, Challenge {
 
     @Override
     public void resumeChallenge() {
-        addListeners();
+        registerListener();
         isActive = true;
     }
 
@@ -89,7 +93,9 @@ public class NoDoubleItemChallenge implements Listener, Challenge {
 
     @Override
     public String getDeathMessage() {
-        return ChatColor.RED + "No doubled items in your inventory allowed (" + wrongItem.getItemStack().displayName() + "). You failed!";
+        return ChatColor.RED + "No doubled items in your inventory allowed (" +
+                Objects.requireNonNull(wrongItem.getItemStack().getItemMeta()).getDisplayName() +
+                "). You failed!";
     }
 
     @Override

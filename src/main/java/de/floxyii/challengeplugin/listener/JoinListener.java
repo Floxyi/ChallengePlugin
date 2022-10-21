@@ -14,7 +14,7 @@ public class JoinListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         player.setPlayerListHeader(ChatColor.GOLD + "-= Challenge Server =-");
-        player.setPlayerListFooter(ChatColor.GREEN + "made by Floxyii with " + ChatColor.RED + "❤");
+        player.setPlayerListFooter(ChatColor.GREEN + "Made by Floxyii with " + ChatColor.RED + "❤");
 
         if(ChallengePlugin.getChallengeManager().getRunningChallenge() != null) {
             if(ChallengePlugin.getChallengeManager().getRunningChallenge().isActive()) {

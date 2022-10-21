@@ -33,7 +33,7 @@ public class TheFloorIsLavaChallenge implements Listener, Challenge {
         }
         updateLoadedChunks();
         updateLavaHeight();
-        addListeners();
+        registerListener();
         isActive = true;
     }
 
@@ -49,8 +49,8 @@ public class TheFloorIsLavaChallenge implements Listener, Challenge {
 
             for (int x = 0; x <= 16; x++) {
                 for (int z = 0; z <= 16; z++) {
-                    for (int y = -63; y <= height; y++) {
-                        chunk.getWorld().getBlockAt(chunkX + x, y, chunkZ + z).setType(Material.LAVA);
+                    if (chunk.getWorld().getBlockAt(chunkX + x, height, chunkZ + z).getType() == Material.AIR || chunk.getWorld().getBlockAt(chunkX + x, height, chunkZ + z).getType() == Material.CAVE_AIR) {
+                        chunk.getWorld().getBlockAt(chunkX + x, height, chunkZ + z).setType(Material.LAVA);
                     }
                 }
             }
@@ -64,7 +64,7 @@ public class TheFloorIsLavaChallenge implements Listener, Challenge {
                 height++;
                 updateLoadedChunks();
             }
-        }.runTaskTimer(ChallengePlugin.getPlugin(), 300, 300);
+        }.runTaskTimer(ChallengePlugin.getPlugin(), 0, 150);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class TheFloorIsLavaChallenge implements Listener, Challenge {
     @Override
     public void resumeChallenge() {
         updateLavaHeight();
-        addListeners();
+        registerListener();
         isActive = true;
     }
 
@@ -116,15 +116,16 @@ public class TheFloorIsLavaChallenge implements Listener, Challenge {
     }
 
     @Override
-    public void addListeners() {
+    public void registerListener() {
         Bukkit.getPluginManager().registerEvents(this, ChallengePlugin.getPlugin());
     }
 
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
-        if(event.getEntity().getGameMode().equals(GameMode.SURVIVAL) && Objects.requireNonNull(event.getEntity().getLastDamageCause()).getCause().equals(EntityDamageEvent.DamageCause.LAVA)) {
-            event.setCancelled(true);
-            ChallengePlugin.getChallengeManager().endChallenge();
+        if(!(event.getEntity().getGameMode().equals(GameMode.SURVIVAL) && Objects.requireNonNull(event.getEntity().getLastDamageCause()).getCause().equals(EntityDamageEvent.DamageCause.LAVA))) {
+            return;
         }
+
+        ChallengePlugin.getChallengeManager().endChallenge();
     }
 }

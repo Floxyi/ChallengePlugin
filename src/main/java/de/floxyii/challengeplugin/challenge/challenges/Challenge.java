@@ -9,7 +9,7 @@ public interface Challenge {
     void activateChallenge();
 
     boolean isActive();
-    void addListeners();
+    void registerListener();
 
     void stopChallenge();
     void resumeChallenge();

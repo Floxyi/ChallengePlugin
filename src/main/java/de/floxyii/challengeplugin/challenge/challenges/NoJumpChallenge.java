@@ -1,6 +1,5 @@
 package de.floxyii.challengeplugin.challenge.challenges;
 
-import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import de.floxyii.challengeplugin.ChallengePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -9,21 +8,28 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerMoveEvent;
+
+import java.util.Objects;
 
 public class NoJumpChallenge implements Listener, Challenge {
 
     boolean isActive = false;
+    Player failedPlayer = null;
+
     @Override
     public String getName() {
         return "NoJump";
     }
 
     public void activateChallenge() {
+        failedPlayer = null;
+
         for(Player player : Bukkit.getOnlinePlayers()) {
             player.setGameMode(GameMode.SURVIVAL);
             player.sendMessage(getPrefix() + ChatColor.GREEN + getName() + "-Challenge got activated!");
         }
-        addListeners();
+        registerListener();
         isActive = true;
     }
 
@@ -44,7 +50,7 @@ public class NoJumpChallenge implements Listener, Challenge {
 
     @Override
     public String getDeathMessage() {
-        return ChatColor.RED + "No Jumps allowed. You failed!";
+        return ChatColor.RED + failedPlayer.getName() + " has jumped! You failed.";
     }
 
     @Override
@@ -64,19 +70,20 @@ public class NoJumpChallenge implements Listener, Challenge {
 
     @Override
     public void resumeChallenge() {
-        addListeners();
+        registerListener();
         isActive = true;
     }
 
     @Override
-    public void addListeners() {
+    public void registerListener() {
         Bukkit.getPluginManager().registerEvents(this, ChallengePlugin.getPlugin());
     }
 
     @EventHandler
-    public void onPlayerMove(PlayerJumpEvent event) {
+    public void onPlayerMove(PlayerMoveEvent event) {
         if(event.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
-            if(event.getTo().getY() - event.getFrom().getY() > 0.35) {
+            if(Objects.requireNonNull(event.getTo()).getY() - event.getFrom().getY() > 0.35) {
+                failedPlayer = event.getPlayer();
                 event.setCancelled(true);
                 ChallengePlugin.getChallengeManager().endChallenge();
             }
