@@ -1,2 +1,2 @@
-# ChallengePlugin
-A small private challenge Plugin made by Floxyi with ❤️.
+# ChallengePlugin 🚩
+A small Minecraft challenge plugin made by Floxyi.
