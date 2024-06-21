@@ -1,7 +1,7 @@
 package de.floxyii.challengeplugin.commands;
 
 import de.floxyii.challengeplugin.ChallengePlugin;
-import de.floxyii.challengeplugin.challenge.Timer;
+import de.floxyii.challengeplugin.challenge.utils.Timer;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

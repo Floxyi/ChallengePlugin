@@ -4,10 +4,12 @@ import de.floxyii.challengeplugin.challenge.ChallengeManager;
 import de.floxyii.challengeplugin.commands.ChallengeCommand;
 import de.floxyii.challengeplugin.commands.ModuleCommand;
 import de.floxyii.challengeplugin.commands.TimerCommand;
-import de.floxyii.challengeplugin.challenge.Timer;
+import de.floxyii.challengeplugin.challenge.utils.Timer;
 import de.floxyii.challengeplugin.commands.WaypointCommand;
+import de.floxyii.challengeplugin.listener.InventoryListener;
 import de.floxyii.challengeplugin.listener.JoinListener;
 import de.floxyii.challengeplugin.listener.PingListener;
+import de.floxyii.challengeplugin.listener.StoppedChallengeListener;
 import de.floxyii.challengeplugin.utils.ChallengeConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -57,10 +59,12 @@ public final class ChallengePlugin extends JavaPlugin {
         PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(new PingListener(), this);
         pluginManager.registerEvents(new JoinListener(), this);
+        pluginManager.registerEvents(new InventoryListener(), this);
+        pluginManager.registerEvents(new StoppedChallengeListener(), this);
     }
 
     public static String getPrefix() {
-        return ChatColor.GRAY + "[" + ChatColor.GOLD + "Challenge-Plugin" + ChatColor.GRAY + "] " + ChatColor.RESET;
+        return ChatColor.GRAY + "[" + ChatColor.GOLD + "Challenges" + ChatColor.GRAY + "] " + ChatColor.RESET;
     }
 
     public static ChallengePlugin getPlugin() {

@@ -3,20 +3,26 @@ package de.floxyii.challengeplugin.challenge;
 import de.floxyii.challengeplugin.ChallengePlugin;
 import de.floxyii.challengeplugin.challenge.challenges.*;
 import de.floxyii.challengeplugin.challenge.modules.*;
-import de.floxyii.challengeplugin.challenge.modules.Module;
+import de.floxyii.challengeplugin.challenge.utils.Challenge;
+import de.floxyii.challengeplugin.challenge.utils.Module;
+import de.floxyii.challengeplugin.challenge.utils.Waypoint;
 import de.floxyii.challengeplugin.utils.ChallengeConfig;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
+import org.bukkit.*;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ChallengeManager {
 
-    private final List<Challenge> challengesList = new ArrayList<>();
     private Challenge runningChallenge = null;
+    private final List<Challenge> challengesList = new ArrayList<>();
     private final List<Module> modulesList = new ArrayList<>();
     private final List<Module> runningModules = new ArrayList<>();
     public final List<Waypoint> waypoints = new ArrayList<>();
@@ -39,15 +45,15 @@ public class ChallengeManager {
 
     public List<String> getChallengeNames() {
         List<String> names = new ArrayList<>();
-        for(Challenge challenge : getChallenges()) {
+        for (Challenge challenge : getChallenges()) {
             names.add(challenge.getName());
         }
         return names;
     }
 
     public Challenge getChallenge(String challengeName) {
-        for(Challenge challenge : getChallenges()) {
-            if(challenge.getName().equals(challengeName)) {
+        for (Challenge challenge : getChallenges()) {
+            if (challenge.getName().equals(challengeName)) {
                 return challenge;
             }
         }
@@ -58,29 +64,21 @@ public class ChallengeManager {
         return runningChallenge;
     }
 
-    public void clearRunningChallenge() {
-        stopChallenge();
-        for(Player player : Bukkit.getOnlinePlayers()) {
-            ChallengePlugin.getChallengeTimer().removePlayer(player);
-        }
-        runningChallenge = null;
-    }
-
     public List<Module> getModulesList() {
         return modulesList;
     }
 
     public List<String> getModuleNames() {
         List<String> names = new ArrayList<>();
-        for(Module module : getModulesList()) {
+        for (Module module : getModulesList()) {
             names.add(module.getName());
         }
         return names;
     }
 
     public Module getModule(String moduleName) {
-        for(Module module : getModulesList()) {
-            if(module.getName().equals(moduleName)) {
+        for (Module module : getModulesList()) {
+            if (module.getName().equals(moduleName)) {
                 return module;
             }
         }
@@ -88,12 +86,12 @@ public class ChallengeManager {
     }
 
     public void setModule(Module module, boolean state) {
-        if(runningChallenge != null) {
+        if (runningChallenge != null) {
             boolean bool = module.setActive(state);
-            if(!bool) {
+            if (!bool) {
                 return;
             }
-            if(state) {
+            if (state) {
                 runningModules.add(module);
             } else {
                 runningModules.remove(module);
@@ -106,77 +104,209 @@ public class ChallengeManager {
     }
 
     public void startChallenge(Challenge challenge) {
-        if(runningChallenge == null) {
+        if (runningChallenge == null) {
             runningChallenge = challenge;
 
             challenge.activateChallenge();
             ChallengePlugin.getChallengeTimer().resetTimer();
             ChallengePlugin.getChallengeTimer().startTimer();
+            updateChallengeListHeader();
+
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.setGameMode(GameMode.SURVIVAL);
+                resetPlayer(player);
+                player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.GOLD + runningChallenge.getName() + "-Challenge" + ChatColor.GREEN + " got started!");
+            }
+
+            World world = ChallengePlugin.getChallengeWorld();
+            if (world != null) {
+                world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
+            }
         }
     }
 
-    public void stopChallenge() {
-        if(runningChallenge != null) {
-            runningChallenge.stopChallenge();
-            ChallengePlugin.getChallengeTimer().stopTimer();
+    private void resetPlayer(Player player) {
+        player.setHealth(20);
+        player.setSaturation(20);
+        player.setFoodLevel(20);
+        player.setLevel(0);
+        player.setExp(0);
+        player.setTotalExperience(0);
+        player.setFireTicks(0);
+        player.setFallDistance(0);
+        player.getInventory().clear();
+        player.getInventory().setArmorContents(null);
+        player.getInventory().setHeldItemSlot(0);
+    }
 
-            for(Module module : runningModules) {
+    public void stopChallenge() {
+        if (runningChallenge != null) {
+            runningChallenge.stopChallenge();
+
+            for (Module module : runningModules) {
                 module.setActive(false);
+            }
+
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.setGameMode(GameMode.ADVENTURE);
+                ChallengePlugin.getChallengeTimer().stopTimer();
+                player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.GOLD + runningChallenge.getName() + "-Challenge" + ChatColor.GREEN + " got stopped!");
+            }
+
+            World world = ChallengePlugin.getChallengeWorld();
+            if (world != null) {
+                world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
             }
         }
     }
 
     public boolean resumeChallenge() {
-        if(runningChallenge != null) {
+        if (runningChallenge != null) {
 
-            if(runningChallenge.isActive()) {
+            if (runningChallenge.isActive()) {
                 return false;
             }
 
             runningChallenge.resumeChallenge();
             ChallengePlugin.getChallengeTimer().startTimer();
 
-            for(Module module : runningModules) {
+            for (Module module : runningModules) {
                 module.setActive(true);
             }
 
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.setGameMode(GameMode.SURVIVAL);
+                player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.GOLD + runningChallenge.getName() + "-Challenge" + ChatColor.GREEN + " got resumed!");
+            }
+
+            World world = ChallengePlugin.getChallengeWorld();
+            if (world != null) {
+                world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
+            }
+
+            updateChallengeListHeader();
             return true;
         }
+
         return false;
+    }
+
+    public void removeChallenge() {
+        if (runningChallenge != null) {
+            runningChallenge.stopChallenge();
+
+            for (Module module : runningModules) {
+                module.setActive(false);
+            }
+
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                ChallengePlugin.getChallengeTimer().removePlayer(player);
+                player.setGameMode(GameMode.ADVENTURE);
+                player.sendMessage(ChallengePlugin.getPrefix() + ChatColor.GOLD + runningChallenge.getName() + "-Challenge" + ChatColor.GREEN + " got removed!");
+            }
+
+            World world = ChallengePlugin.getChallengeWorld();
+            if (world != null) {
+                world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+            }
+
+            runningChallenge = null;
+            updateChallengeListHeader();
+        }
     }
 
     public void endChallenge() {
         ChallengePlugin.getChallengeTimer().stopTimer();
         runningChallenge.stopChallenge();
 
-        for(Module module : getModulesList()) {
+        for (Module module : getModulesList()) {
             module.setActive(false);
         }
 
-        for(Player player : Bukkit.getOnlinePlayers()) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
             player.sendMessage(runningChallenge.getPrefix() + runningChallenge.getDeathMessage());
-            player.sendMessage(runningChallenge.getPrefix() + "Time wasted: " + ChatColor.GOLD + ChallengePlugin.getChallengeTimer().getFormattedTime() + ChatColor.RESET + " [ID: " + ChallengePlugin.getChallengeTimer().getTime() + "]");
+            player.sendMessage(runningChallenge.getPrefix() + "Time wasted: " + ChatColor.GOLD + ChallengePlugin.getChallengeTimer().getFormattedTime());
             player.setGameMode(GameMode.SPECTATOR);
             ChallengePlugin.getChallengeTimer().removePlayer(player);
         }
 
-        ChallengePlugin.getChallengeTimer().resetTimer();
         runningChallenge = null;
+        ChallengePlugin.getChallengeTimer().resetTimer();
+        updateChallengeListHeader();
+    }
+
+    private void updateChallengeListHeader() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.setPlayerListHeader(getHeaderText());
+        }
+    }
+
+    public String getHeaderText() {
+        String text = ChatColor.GOLD + " Challenge Server (No Challenge) ";
+        if (ChallengePlugin.getChallengeManager().getRunningChallenge() != null) {
+            String challenge = ChallengePlugin.getChallengeManager().getRunningChallenge().getName();
+            text = ChatColor.GOLD + " Challenge Server (" + challenge + ") ";
+        }
+        return text;
+    }
+
+    public Inventory getChallengeInventory() {
+        int inventorySize = challengesList.size() % 9 > 0 ? (challengesList.size() / 9) + 9 : challengesList.size();
+        Inventory inventory = Bukkit.createInventory(null, inventorySize, "Challenges");
+
+        for (Challenge challenge : getChallenges()) {
+            ItemStack item = new ItemStack(challenge.getDisplayItem());
+            setName(item, ChatColor.GOLD + challenge.getName());
+            setLore(item, challenge.getDescription());
+            if (challenge.isActive()) {
+                addGlow(item);
+            }
+            inventory.addItem(item);
+        }
+
+        return inventory;
+    }
+
+    private void setLore(ItemStack item, String loreText) {
+    ItemMeta meta = item.getItemMeta();
+    if (meta != null) {
+        List<String> lore = new ArrayList<>();
+        String[] lines = loreText.split("\n");
+        Collections.addAll(lore, lines);
+        meta.setLore(lore);
+        item.setItemMeta(meta);
+    }
+}
+
+    private void addGlow(ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.addEnchant(Enchantment.LUCK, 1, true);
+            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        }
+        item.setItemMeta(meta);
+    }
+
+    private void setName(ItemStack item, String name) {
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(name);
+            item.setItemMeta(meta);
+        }
     }
 
     public void saveChallengeState() {
         ChallengeConfig config = ChallengePlugin.getChallengeConfig();
 
-        if(getRunningChallenge() != null) {
+        if (getRunningChallenge() != null) {
             runningChallenge.stopChallenge();
             config.set("challenge.type", runningChallenge.getName());
             runningChallenge.saveContents("challenge.contents");
-            config.set("challenge.active", true);
         } else {
-            config.set("challenge.active", false);
+            config.set("challenge", "");
         }
 
-        if(ChallengePlugin.getChallengeTimer().getTime() != 0) {
+        if (ChallengePlugin.getChallengeTimer().getTime() != 0) {
             ChallengePlugin.getChallengeTimer().stopTimer();
             config.set("timer.time", ChallengePlugin.getChallengeTimer().getTime());
             config.set("timer.active", true);
@@ -185,15 +315,15 @@ public class ChallengeManager {
         }
 
         List<String> moduleNames = new ArrayList<>();
-        for(Module module : getActiveModules()) {
+        for (Module module : getActiveModules()) {
             moduleNames.add(module.getName());
             module.setActive(false);
         }
         config.set("modules.active", moduleNames);
 
-        if(!waypoints.isEmpty()) {
+        if (!waypoints.isEmpty()) {
             config.set("waypoints.amount", waypoints.size());
-            for(int i = 0; i < waypoints.size(); i++) {
+            for (int i = 0; i < waypoints.size(); i++) {
                 config.set("waypoints." + i + ".Name", waypoints.get(i).name);
                 config.set("waypoints." + i + ".X", waypoints.get(i).x);
                 config.set("waypoints." + i + ".Y", waypoints.get(i).y);
@@ -202,21 +332,18 @@ public class ChallengeManager {
         }
     }
 
-    @SuppressWarnings (value="unchecked")
+    @SuppressWarnings(value = "unchecked")
     public void loadChallengeState() {
         ChallengeConfig config = ChallengePlugin.getChallengeConfig();
 
-        if(config.get("challenge.active") != null) {
-            boolean active = (Boolean) config.get("challenge.active");
-            if(active) {
-                String challengeName = (String) config.get("challenge.type");
-                Challenge challenge = getChallenge(challengeName);
-                startChallenge(challenge);
-                challenge.loadContents("challenge.contents");
-            }
+        if (config.get("challenge") != null && config.get("challenge.type") != null) {
+            Challenge challenge = getChallenge((String) config.get("challenge.type"));
+            startChallenge(challenge);
+            challenge.loadContents("challenge.contents");
+            stopChallenge();
         }
 
-        if(config.get("timer.active") != null) {
+        if (config.get("timer.active") != null) {
             boolean active = (Boolean) config.get("timer.active");
             if (active) {
                 int time = (int) config.get("timer.time");
@@ -226,14 +353,14 @@ public class ChallengeManager {
             }
         }
 
-        if(config.get("modules.active") != null) {
+        if (config.get("modules.active") != null) {
             List<String> moduleNames = (List<String>) config.get("modules.active");
-            for(String moduleName : moduleNames) {
+            for (String moduleName : moduleNames) {
                 setModule(getModule(moduleName), true);
             }
         }
 
-        if(config.get("waypoints.amount") != null) {
+        if (config.get("waypoints.amount") != null) {
             for (int i = 0; i < (int) config.get("waypoints.amount"); i++) {
                 String name = (String) config.get("waypoints." + i + ".Name");
                 double x = (double) config.get("waypoints." + i + ".X");

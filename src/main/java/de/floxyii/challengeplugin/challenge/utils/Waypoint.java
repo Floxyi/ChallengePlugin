@@ -1,4 +1,4 @@
-package de.floxyii.challengeplugin.challenge;
+package de.floxyii.challengeplugin.challenge.utils;
 
 import org.bukkit.ChatColor;
 

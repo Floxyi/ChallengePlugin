@@ -1,6 +1,7 @@
 package de.floxyii.challengeplugin.challenge.challenges;
 
 import de.floxyii.challengeplugin.ChallengePlugin;
+import de.floxyii.challengeplugin.challenge.utils.Challenge;
 import de.floxyii.challengeplugin.utils.ChallengeConfig;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -28,9 +29,6 @@ public class TheFloorIsLavaChallenge implements Listener, Challenge {
     @Override
     public void activateChallenge() {
         height = -63;
-        for(Player player : Bukkit.getOnlinePlayers()) {
-            player.sendMessage(getPrefix() + ChatColor.GREEN + getName() + "-Challenge got activated!");
-        }
         updateLoadedChunks();
         updateLavaHeight();
         registerListener();
@@ -71,9 +69,6 @@ public class TheFloorIsLavaChallenge implements Listener, Challenge {
     public void stopChallenge() {
         HandlerList.unregisterAll(this);
         lavaUpdater.cancel();
-        for(Player player : Bukkit.getOnlinePlayers()) {
-            player.sendMessage(getPrefix() + ChatColor.RED + getName() + "-Challenge got deactivated!");
-        }
         isActive = false;
     }
 
@@ -91,9 +86,14 @@ public class TheFloorIsLavaChallenge implements Listener, Challenge {
 
     @Override
     public String getDescription() {
-        return "In this challenge lava will raise from the very bottom of your world! You need to survive as long as " +
-                "you can while getting the most important materials first before they are under lava! Challenge your " +
-                "friends or take the challenge for yourself and try to achieve the best time!";
+        return "In this challenge lava will raise from the very bottom of your world!\nYou need to survive as long as " +
+                "you can while getting the most important\nmaterials first before they are under lava!\nChallenge your " +
+                "friends or take the challenge for\nyourself and try to achieve the best time!";
+    }
+
+    @Override
+    public Material getDisplayItem() {
+        return Material.LAVA_BUCKET;
     }
 
     @Override

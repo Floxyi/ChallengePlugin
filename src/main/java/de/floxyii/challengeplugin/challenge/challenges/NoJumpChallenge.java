@@ -1,16 +1,23 @@
 package de.floxyii.challengeplugin.challenge.challenges;
 
+import com.google.common.collect.Sets;
 import de.floxyii.challengeplugin.ChallengePlugin;
+import de.floxyii.challengeplugin.challenge.utils.Challenge;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 public class NoJumpChallenge implements Listener, Challenge {
 
@@ -27,7 +34,6 @@ public class NoJumpChallenge implements Listener, Challenge {
 
         for(Player player : Bukkit.getOnlinePlayers()) {
             player.setGameMode(GameMode.SURVIVAL);
-            player.sendMessage(getPrefix() + ChatColor.GREEN + getName() + "-Challenge got activated!");
         }
         registerListener();
         isActive = true;
@@ -44,8 +50,13 @@ public class NoJumpChallenge implements Listener, Challenge {
 
     @Override
     public String getDescription() {
-        return "In this challenge you are not allowed to jump! So be carefully going down a deep cave without the " +
-                "needed equipment to get out again! Have a great time :) And please do not cheat by unbinding your jump key!";
+        return "In this challenge you are not allowed to jump!\nSo be carefully going down a deep cave without the\n" +
+                "needed equipment to get out again!\nHave a great time and please do not cheat\nby unbinding your jump key!";
+    }
+
+    @Override
+    public Material getDisplayItem() {
+        return Material.DIAMOND_BOOTS;
     }
 
     @Override
@@ -62,9 +73,6 @@ public class NoJumpChallenge implements Listener, Challenge {
     @Override
     public void stopChallenge() {
         HandlerList.unregisterAll(this);
-        for(Player player : Bukkit.getOnlinePlayers()) {
-            player.sendMessage(getPrefix() + ChatColor.RED + getName() + "-Challenge got deactivated!");
-        }
         isActive = false;
     }
 
@@ -79,14 +87,29 @@ public class NoJumpChallenge implements Listener, Challenge {
         Bukkit.getPluginManager().registerEvents(this, ChallengePlugin.getPlugin());
     }
 
+    private final Set<UUID> prevPlayersOnGround = Sets.newHashSet();
+
     @EventHandler
-    public void onPlayerMove(PlayerMoveEvent event) {
-        if(event.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
-            if(Objects.requireNonNull(event.getTo()).getY() - event.getFrom().getY() > 0.35) {
-                failedPlayer = event.getPlayer();
-                event.setCancelled(true);
-                ChallengePlugin.getChallengeManager().endChallenge();
+    public void onMove(PlayerMoveEvent e) {
+        Player player = e.getPlayer();
+
+        if (player.getVelocity().getY() > 0) {
+            double jumpVelocity = 0.42F;
+            if (player.hasPotionEffect(PotionEffectType.JUMP)) {
+                jumpVelocity += (float) (Objects.requireNonNull(player.getPotionEffect(PotionEffectType.JUMP)).getAmplifier() + 1) * 0.1F;
             }
+            if (e.getPlayer().getLocation().getBlock().getType() != Material.LADDER && prevPlayersOnGround.contains(player.getUniqueId())) {
+                if (!((LivingEntity) player).isOnGround() && Double.compare(player.getVelocity().getY(), jumpVelocity) == 0) {
+                    failedPlayer = player;
+                    ChallengePlugin.getChallengeManager().endChallenge();
+                }
+            }
+        }
+
+        if (((LivingEntity) player).isOnGround()) {
+            prevPlayersOnGround.add(player.getUniqueId());
+        } else {
+            prevPlayersOnGround.remove(player.getUniqueId());
         }
     }
 }

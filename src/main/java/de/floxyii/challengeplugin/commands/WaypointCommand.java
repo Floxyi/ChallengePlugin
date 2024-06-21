@@ -1,7 +1,7 @@
 package de.floxyii.challengeplugin.commands;
 
 import de.floxyii.challengeplugin.ChallengePlugin;
-import de.floxyii.challengeplugin.challenge.Waypoint;
+import de.floxyii.challengeplugin.challenge.utils.Waypoint;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

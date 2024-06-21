@@ -9,8 +9,8 @@ commands:
   timer:
     description: Start the timer! (/timer <start> <stop> <remove> <reset> <set "time">)
   challenge:
-    description: Start the different challenges! (/challenge <start "challenge name"> <stop> <resume> <clear> <info "challenge name">)
+    description: Start the different challenges! (/challenge <start "challenge name"> <stop> <resume> <remove> <info "challenge name">)
   module:
-    description: Add some small modules to your challenge! (/module <edit "module" "bool"> <show "module"> <info "module"> <clear>)
+    description: Add some small modules to your challenge! (/module <edit "module" "bool"> <show "module"> <info "module"> <remove>)
   waypoint:
     description: Create waypoints! (/waypoint <create "waypoint name"> <show "waypoint name"> <delete "waypoint name">)

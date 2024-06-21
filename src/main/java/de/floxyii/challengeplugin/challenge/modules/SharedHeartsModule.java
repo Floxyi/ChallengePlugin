@@ -1,8 +1,10 @@
 package de.floxyii.challengeplugin.challenge.modules;
 
 import de.floxyii.challengeplugin.ChallengePlugin;
+import de.floxyii.challengeplugin.challenge.utils.Module;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -25,6 +27,11 @@ public class SharedHeartsModule implements Module, Listener {
     @Override
     public String getDescription() {
         return "If you take damage, all of the other player will do so too!";
+    }
+
+    @Override
+    public Material getDisplayItem() {
+        return Material.CHAIN;
     }
 
     @Override

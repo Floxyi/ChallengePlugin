@@ -1,7 +1,9 @@
 package de.floxyii.challengeplugin.challenge.modules;
 
+import de.floxyii.challengeplugin.challenge.utils.Module;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,6 +28,11 @@ public class HalfHeartModule implements Module, Listener {
     @Override
     public String getDescription() {
         return "You only have one heart!";
+    }
+
+    @Override
+    public Material getDisplayItem() {
+        return Material.POTION;
     }
 
     @Override

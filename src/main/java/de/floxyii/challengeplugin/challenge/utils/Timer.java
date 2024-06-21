@@ -1,4 +1,4 @@
-package de.floxyii.challengeplugin.challenge;
+package de.floxyii.challengeplugin.challenge.utils;
 
 import de.floxyii.challengeplugin.ChallengePlugin;
 import net.md_5.bungee.api.ChatMessageType;

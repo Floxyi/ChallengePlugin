@@ -1,6 +1,7 @@
 package de.floxyii.challengeplugin.utils;
 
 import de.floxyii.challengeplugin.ChallengePlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -22,7 +23,7 @@ public class ChallengeConfig {
                     ChallengePlugin.getPlugin().getLogger().info("Config cannot be created!");
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                Bukkit.getLogger().warning("Config cannot be created!");
             }
         }
 
