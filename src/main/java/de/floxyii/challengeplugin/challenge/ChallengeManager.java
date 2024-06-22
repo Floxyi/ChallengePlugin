@@ -121,6 +121,7 @@ public class ChallengeManager {
             World world = ChallengePlugin.getChallengeWorld();
             if (world != null) {
                 world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
+                world.setTime(0);
             }
         }
     }
@@ -281,7 +282,7 @@ public class ChallengeManager {
     private void addGlow(ItemStack item) {
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.addEnchant(Enchantment.LUCK, 1, true);
+            meta.addEnchant(Enchantment.LURE, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
         item.setItemMeta(meta);

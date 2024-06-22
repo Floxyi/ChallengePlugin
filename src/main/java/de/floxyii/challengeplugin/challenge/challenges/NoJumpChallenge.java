@@ -95,8 +95,8 @@ public class NoJumpChallenge implements Listener, Challenge {
 
         if (player.getVelocity().getY() > 0) {
             double jumpVelocity = 0.42F;
-            if (player.hasPotionEffect(PotionEffectType.JUMP)) {
-                jumpVelocity += (float) (Objects.requireNonNull(player.getPotionEffect(PotionEffectType.JUMP)).getAmplifier() + 1) * 0.1F;
+            if (player.hasPotionEffect(PotionEffectType.JUMP_BOOST)) {
+                jumpVelocity += (float) (Objects.requireNonNull(player.getPotionEffect(PotionEffectType.JUMP_BOOST)).getAmplifier() + 1) * 0.1F;
             }
             if (e.getPlayer().getLocation().getBlock().getType() != Material.LADDER && prevPlayersOnGround.contains(player.getUniqueId())) {
                 if (!((LivingEntity) player).isOnGround() && Double.compare(player.getVelocity().getY(), jumpVelocity) == 0) {
